@@ -1,0 +1,17 @@
+[2026-04-07 05:47:22] [ERROR] DIRECT_CHARGE_MOMO HTTP 400: Array {"charge_id":"CHG-20260407-0001"}
+[2026-04-07 06:33:51] [ERROR] DIRECT_CHARGE_MOMO HTTP 400: {"mobile":["Enter a valid mobile number of nine (9) digits."]} {"charge_id":"CHG-20260407-0001"}
+[2026-04-07 06:38:00] [ERROR] VERIFY_PAYMENT HTTP 400: Payment link not found. {"tx_ref":"d144f39d-187d-47f2-a575-0b21cb858d34"}
+[2026-04-07 06:42:20] [ERROR] VERIFY_PAYMENT HTTP 400: Payment link not found. {"tx_ref":"trx_4hzRNBvkUlhqEO4XAMtX"}
+[2026-04-07 06:42:49] [ERROR] VERIFY_PAYMENT HTTP 400: Payment link not found. {"tx_ref":"43702260431"}
+[2026-04-07 06:43:49] [WARNING] Failed login attempt {"username":"Admin","ip":"::1"}
+[2026-04-07 06:43:55] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
+[2026-04-07 06:44:01] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
+[2026-04-07 06:49:30] [INFO] Admin login {"username":"admin","ip":"::1"}
+[2026-04-07 06:57:09] [ERROR] VERIFY_PAYMENT HTTP 400: Payment link not found. {"tx_ref":"4hzRNBvkUlhqEO4XAMtX"}
+[2026-04-07 07:08:31] [ERROR] cURL error on VERIFY_PAYMENT: Connection timed out after 30001 milliseconds {"tx_ref":"43702260431","endpoint":"\/verify-payment\/43702260431"}
+[2026-04-07 07:32:30] [ERROR] VERIFY_PAYMENT HTTP 400: Payment link not found. {"tx_ref":"958fa752-f22e-4d87-9d45-eb350438fae3"}
+[2026-04-07 07:36:55] [ERROR] VERIFY_PAYMENT HTTP 400: Payment link not found. {"tx_ref":"43702260431"}
+[2026-04-07 07:45:49] [ERROR] DIRECT_CHARGE_BANK HTTP 400: {"create_permanent_account":["The selected create permanent account is invalid."]} {"charge_id":"CHG-20260407-0001"}
+[2026-04-07 07:47:51] [ERROR] DIRECT_CHARGE_BANK HTTP 400: {"create_permanent_account":["The selected create permanent account is invalid."]} {"charge_id":"CHG-20260407-0001"}
+[2026-04-07 07:48:13] [ERROR] DIRECT_CHARGE_BANK HTTP 400: {"create_permanent_account":["The selected create permanent account is invalid."]} {"charge_id":"CHG-20260407-0001"}
+[2026-04-07 09:43:01] [INFO] Admin login {"username":"admin","ip":"::1"}

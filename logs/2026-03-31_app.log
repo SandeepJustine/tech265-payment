@@ -1,0 +1,5 @@
+[2026-03-31 10:12:54] [ERROR] cURL error [GET_SUPPORTED_BANKS]: SSL certificate problem: unable to get local issuer certificate {"charge_id":null,"endpoint":"\/direct-charge\/payouts\/supported-banks?currency=MWK"}
+[2026-03-31 10:12:57] [ERROR] cURL error [GET_SUPPORTED_BANKS]: SSL certificate problem: unable to get local issuer certificate {"charge_id":null,"endpoint":"\/direct-charge\/payouts\/supported-banks?currency=MWK"}
+[2026-03-31 10:13:10] [ERROR] cURL error [GET_OPERATORS]: SSL certificate problem: unable to get local issuer certificate {"charge_id":null,"endpoint":"\/mobile-money"}
+[2026-03-31 10:38:28] [ERROR] cURL error [GET_OPERATORS]: SSL certificate problem: unable to get local issuer certificate {"charge_id":null,"endpoint":"\/mobile-money"}
+[2026-03-31 10:38:33] [ERROR] cURL error [GET_OPERATORS]: SSL certificate problem: unable to get local issuer certificate {"charge_id":null,"endpoint":"\/mobile-money"}

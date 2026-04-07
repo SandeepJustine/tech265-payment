@@ -1,0 +1,25 @@
+[2026-03-30 11:04:56] [INFO] Admin login {"username":"admin","ip":"::1"}
+[2026-03-30 11:16:15] [ERROR] cURL error on INITIATE_PAYMENT: SSL certificate problem: unable to get local issuer certificate {"tx_ref":"T265-B60CA3AA88B3-1774869374","endpoint":"\/payment"}
+[2026-03-30 11:24:43] [ERROR] INITIATE_PAYMENT HTTP 403: Secret key missing in the authorization header. {"tx_ref":"T265-24C1C445805C-1774869882"}
+[2026-03-30 11:43:24] [ERROR] INITIATE_PAYMENT HTTP 403: Secret key missing in the authorization header. {"tx_ref":"T265-89CDF7A76216-1774871004"}
+[2026-03-30 11:43:29] [ERROR] INITIATE_PAYMENT HTTP 403: Secret key missing in the authorization header. {"tx_ref":"T265-E6FFFF30A606-1774871008"}
+[2026-03-30 11:43:31] [ERROR] INITIATE_PAYMENT HTTP 403: Secret key missing in the authorization header. {"tx_ref":"T265-41A1752F9BD9-1774871010"}
+[2026-03-30 11:43:32] [ERROR] INITIATE_PAYMENT HTTP 403: Secret key missing in the authorization header. {"tx_ref":"T265-361F8F350146-1774871011"}
+[2026-03-30 11:43:50] [ERROR] INITIATE_PAYMENT HTTP 403: Secret key missing in the authorization header. {"tx_ref":"T265-7EC39E0493A1-1774871029"}
+[2026-03-30 11:53:54] [ERROR] INITIATE_PAYMENT HTTP 403: Secret key missing in the authorization header. {"tx_ref":"T265-814492ABDAE5-1774871633"}
+[2026-03-30 11:59:12] [ERROR] VERIFY_PAYMENT HTTP 403: Secret key missing in the authorization header. {"tx_ref":"T265-814492ABDAE5-1774871633"}
+[2026-03-30 12:06:23] [ERROR] INITIATE_PAYMENT HTTP 403: Secret key missing in the authorization header. {"tx_ref":"T265-0635E606EF0C-1774872382"}
+[2026-03-30 12:09:29] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"SEC-Su6x..."}
+[2026-03-30 12:09:31] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"SEC-Su6x..."}
+[2026-03-30 12:09:31] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"SEC-Su6x..."}
+[2026-03-30 12:09:53] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"PUB-nBJz..."}
+[2026-03-30 12:09:53] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"PUB-nBJz..."}
+[2026-03-30 12:15:48] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"SEC-Su6x..."}
+[2026-03-30 12:15:50] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"SEC-Su6x..."}
+[2026-03-30 12:15:50] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"SEC-Su6x..."}
+[2026-03-30 12:15:51] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"SEC-Su6x..."}
+[2026-03-30 12:15:51] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"SEC-Su6x..."}
+[2026-03-30 12:15:52] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"SEC-Su6x..."}
+[2026-03-30 12:15:52] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"SEC-Su6x..."}
+[2026-03-30 12:15:53] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"SEC-Su6x..."}
+[2026-03-30 13:11:08] [INFO] Admin login {"username":"admin","ip":"::1"}

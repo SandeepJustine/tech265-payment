@@ -1,0 +1,19 @@
+Options -Indexes
+ServerSignature Off
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # No hardcoded RewriteBase — works in any subfolder on WampServer
+    # Pass PATH_INFO so index.php can read the full URI via REQUEST_URI
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Cache-Control "no-store, no-cache, must-revalidate"
+</IfModule>

@@ -1,0 +1,21 @@
+Options -Indexes
+ServerSignature Off
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct browser access to backend directories
+    RewriteRule ^(config|src|logs)(/|$) - [F,L]
+
+    # Route /api/* to the API front controller (works in any subfolder)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^api/ api/index.php [QSA,L]
+</IfModule>
+
+# Protect sensitive files from direct download
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>
