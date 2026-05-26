@@ -1,0 +1,15 @@
+{
+  "workspace": {
+    "id": "fdcba36b-28b3-48c1-8320-b9dc82e99b46"
+  },
+  "entities": {
+    "environments": [],
+    "flows": [],
+    "globals": [],
+    "mocks": [],
+    "specs": [],
+    "collections": [
+      "..\\Tech265-Payment-API.postman_collection.json"
+    ]
+  }
+}

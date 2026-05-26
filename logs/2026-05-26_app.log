@@ -16,3 +16,7 @@
 [2026-05-26 08:54:50] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
 [2026-05-26 08:55:55] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
 [2026-05-26 09:06:11] [INFO] Admin login {"username":"admin","ip":"::1"}
+[2026-05-26 09:44:53] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 09:46:58] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 09:47:35] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 09:48:22] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
