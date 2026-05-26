@@ -33,6 +33,9 @@ class DirectCharge
 
     // Recognised operator slugs
     const OP_MOMO          = 'momo';
+    const OP_AIRTEL        = 'airtel';
+    const OP_TNM           = 'tnm';
+    const OP_MPAMBA        = 'mpamba';
     const OP_BANK_TRANSFER = 'bank_transfer';
 
     public function __construct()
@@ -75,67 +78,81 @@ class DirectCharge
     /**
      * Initiate a direct charge using either MoMo or Bank Transfer.
      *
-     * The 'operator' field controls routing:
-     *   'momo'          → POST /mobile-money/payments/initialize
-     *   'bank_transfer' → POST /direct-charge/payments/initialize
-     *
-     * Common required fields:
-     *   charge_id   string   Your unique reference (e.g. PC-T265-XXXXXXXX)
-     *   operator    string   'momo' | 'bank_transfer'
-     *   amount      numeric  Amount to collect
-     *   currency    string   'MWK'
-     *
-     * MoMo-specific (operator = 'momo'):
-     *   mobile_money_operator_ref_id  UUID from getOperators()
-     *   mobile                        Customer phone number
-     *   first_name, last_name, email  (optional)
-     *
-     * Bank-specific (operator = 'bank_transfer'):
-     *   create_permanent_account  'true'|'false'  (optional, default 'false')
-     *   — amount is optional for permanent accounts
+     * Simplified payload fields:
+     *   operator        string   'airtel' | 'tnm' | 'mpamba' | 'bank_transfer'
+     *   amount          numeric  Amount to collect
+     *   phone           string   Customer phone (MoMo operators)
+     *   email           string   Customer email (optional)
+     *   firstname       string   Customer first name (optional)
+     *   lastname        string   Customer last name (optional)
+     *   bank_name       string   Bank name (bank_transfer)
+     *   account_number  string   Account number (bank_transfer)
+     *   account_name    string   Account holder name (bank_transfer)
+     *   charge_id       string   Your unique reference (auto-generated if omitted)
      *
      * @return array  ['success'=>bool, 'data'=>..., 'message'=>..., 'operator'=>..., 'charge_id'=>...]
      */
     public function charge(array $params): array
     {
         $operator = strtolower(trim($params['operator'] ?? ''));
-        $chargeId = $params['charge_id'] ?? null;
 
-        if ($operator === self::OP_MOMO) {
-            // Strip our internal 'operator' key before forwarding
-            $payload  = $this->stripInternalKeys($params);
-            $result   = $this->request(
+        // Auto-generate charge_id if not provided
+        $chargeId = $params['charge_id'] ?? self::generateChargeId();
+        $params['charge_id'] = $chargeId;
+
+        // Normalise simplified field names → PayChangu-expected names
+        $params = $this->normalizeDepositFields($params);
+
+        $isMomo = in_array($operator, [self::OP_AIRTEL, self::OP_TNM, self::OP_MPAMBA, self::OP_MOMO]);
+
+        if ($isMomo) {
+            // Resolve operator UUID from slug if not already provided
+            if (empty($params['mobile_money_operator_ref_id'])) {
+                $refId = $this->resolveOperatorRefId($operator);
+                if (!$refId) {
+                    return [
+                        'success'   => false,
+                        'message'   => "Could not resolve operator ref ID for '{$operator}'. Check that the operator is available on PayChangu.",
+                        'charge_id' => $chargeId,
+                    ];
+                }
+                $params['mobile_money_operator_ref_id'] = $refId;
+            }
+
+            $payload = $this->stripInternalKeys($params);
+            $result  = $this->request(
                 'POST', '/mobile-money/payments/initialize',
                 $payload, $chargeId, 'DIRECT_CHARGE_MOMO'
             );
+            $internalOperator = self::OP_MOMO;
 
         } elseif ($operator === self::OP_BANK_TRANSFER) {
-            $payload                     = $this->stripInternalKeys($params);
-            $payload['payment_method']   = 'mobile_bank_transfer';
-            $payload['currency']         = strtoupper($payload['currency'] ?? 'MWK');
-            // Cast to a real PHP boolean so json_encode produces true/false, not "true"/"false"
-            $isPerm = $payload['create_permanent_account'] ?? false;
+            $payload                             = $this->stripInternalKeys($params);
+            $payload['payment_method']           = 'mobile_bank_transfer';
+            $payload['currency']                 = strtoupper($payload['currency'] ?? 'MWK');
+            $isPerm                              = $payload['create_permanent_account'] ?? false;
             $payload['create_permanent_account'] = filter_var($isPerm, FILTER_VALIDATE_BOOLEAN);
             $result = $this->request(
                 'POST', '/direct-charge/payments/initialize',
                 $payload, $chargeId, 'DIRECT_CHARGE_BANK'
             );
+            $internalOperator = self::OP_BANK_TRANSFER;
 
         } else {
             return [
                 'success'   => false,
-                'message'   => "Invalid operator '{$operator}'. Use 'momo' or 'bank_transfer'.",
+                'message'   => "Invalid operator '{$operator}'. Use 'airtel', 'tnm', 'mpamba', or 'bank_transfer'.",
                 'charge_id' => $chargeId,
             ];
         }
 
         // Persist record with resolved type
         if ($result['success']) {
-            $this->saveCharge($chargeId, $operator, $params, $result);
+            $this->saveCharge($chargeId, $internalOperator, $params, $result);
         }
 
-        $result['operator']   = $operator;
-        $result['charge_id']  = $chargeId;
+        $result['operator']  = $operator;
+        $result['charge_id'] = $chargeId;
         return $result;
     }
 
@@ -222,58 +239,77 @@ class DirectCharge
     // ════════════════════════════════════════════════════════
 
     /**
-     * Initiate a payout using either MoMo or Bank Transfer.
+     * Initiate a payout using MoMo or Bank Transfer.
      *
-     * The 'operator' field controls routing:
-     *   'momo'          → POST /mobile-money/payouts/initialize
-     *   'bank_transfer' → POST /direct-charge/payouts/initialize
-     *
-     * Common required fields:
-     *   charge_id   string   Your unique payout reference
-     *   operator    string   'momo' | 'bank_transfer'
-     *   amount      numeric  Amount to disburse
-     *
-     * MoMo-specific (operator = 'momo'):
-     *   mobile_money_operator_ref_id  UUID from getOperators()
-     *   mobile                        Recipient phone number
-     *
-     * Bank-specific (operator = 'bank_transfer'):
-     *   bank_uuid            UUID from getSupportedBanks()
-     *   bank_account_name    Recipient full name
-     *   bank_account_number  Recipient account number
+     * Simplified payload fields:
+     *   amount    numeric  Amount to disburse (required)
+     *   phone     string   Recipient phone number (required for MoMo)
+     *   operator  string   'airtel' | 'tnm' | 'mpamba' | 'bank_transfer' (auto-detected from phone if omitted)
+     *   charge_id string   Your unique payout reference (auto-generated if omitted)
      *
      * @return array  ['success'=>bool, 'data'=>..., 'message'=>..., 'operator'=>..., 'charge_id'=>...]
      */
     public function payout(array $params): array
     {
         $operator = strtolower(trim($params['operator'] ?? ''));
-        $chargeId = $params['charge_id'] ?? null;
 
-        if ($operator === self::OP_MOMO) {
+        // Auto-generate charge_id if not provided
+        $chargeId = $params['charge_id'] ?? self::generateChargeId();
+        $params['charge_id'] = $chargeId;
+
+        // Map 'phone' → 'mobile'
+        if (isset($params['phone']) && !isset($params['mobile'])) {
+            $params['mobile'] = $params['phone'];
+            unset($params['phone']);
+        }
+
+        // Auto-detect operator from phone number if not provided
+        if (empty($operator) && !empty($params['mobile'])) {
+            $operator = $this->detectOperatorFromPhone($params['mobile']);
+        }
+
+        $isMomo = in_array($operator, [self::OP_AIRTEL, self::OP_TNM, self::OP_MPAMBA, self::OP_MOMO]);
+
+        if ($isMomo) {
+            // Resolve operator UUID from slug if not already provided
+            if (empty($params['mobile_money_operator_ref_id'])) {
+                $refId = $this->resolveOperatorRefId($operator);
+                if (!$refId) {
+                    return [
+                        'success'   => false,
+                        'message'   => "Could not resolve operator ref ID for '{$operator}'.",
+                        'charge_id' => $chargeId,
+                    ];
+                }
+                $params['mobile_money_operator_ref_id'] = $refId;
+            }
+
             $payload = $this->stripInternalKeys($params);
             $result  = $this->request(
                 'POST', '/mobile-money/payouts/initialize',
                 $payload, $chargeId, 'PAYOUT_MOMO'
             );
+            $internalOperator = self::OP_MOMO;
 
         } elseif ($operator === self::OP_BANK_TRANSFER) {
-            $payload                   = $this->stripInternalKeys($params);
-            $payload['payout_method']  = 'bank_transfer';
+            $payload                  = $this->stripInternalKeys($params);
+            $payload['payout_method'] = 'bank_transfer';
             $result = $this->request(
                 'POST', '/direct-charge/payouts/initialize',
                 $payload, $chargeId, 'PAYOUT_BANK'
             );
+            $internalOperator = self::OP_BANK_TRANSFER;
 
         } else {
             return [
                 'success'   => false,
-                'message'   => "Invalid operator '{$operator}'. Use 'momo' or 'bank_transfer'.",
+                'message'   => "Invalid operator '{$operator}'. Use 'airtel', 'tnm', 'mpamba', or 'bank_transfer'.",
                 'charge_id' => $chargeId,
             ];
         }
 
         if ($result['success']) {
-            $this->savePayout($chargeId, $operator, $params, $result);
+            $this->savePayout($chargeId, $internalOperator, $params, $result);
         }
 
         $result['operator']  = $operator;
@@ -351,7 +387,106 @@ class DirectCharge
     private function stripInternalKeys(array $params): array
     {
         unset($params['operator']);   // routing key — not a PayChangu field
+        unset($params['phone']);      // already normalised to 'mobile'
+        unset($params['firstname']);  // already normalised to 'first_name'
+        unset($params['lastname']);   // already normalised to 'last_name'
         return $params;
+    }
+
+    /**
+     * Normalise simplified deposit field names to PayChangu-expected names.
+     *   phone     → mobile
+     *   firstname → first_name
+     *   lastname  → last_name
+     * Also sets 'currency' to MWK if not provided.
+     */
+    private function normalizeDepositFields(array $params): array
+    {
+        if (isset($params['phone']) && !isset($params['mobile'])) {
+            $params['mobile'] = $params['phone'];
+        }
+        if (isset($params['firstname']) && !isset($params['first_name'])) {
+            $params['first_name'] = $params['firstname'];
+        }
+        if (isset($params['lastname']) && !isset($params['last_name'])) {
+            $params['last_name'] = $params['lastname'];
+        }
+        if (!isset($params['currency'])) {
+            $params['currency'] = 'MWK';
+        }
+        return $params;
+    }
+
+    /**
+     * Resolve a PayChangu mobile_money_operator_ref_id from a human-readable slug.
+     * Calls GET /mobile-money and matches by operator name (case-insensitive).
+     *
+     * Slug → name search terms:
+     *   airtel  → 'airtel'
+     *   tnm     → 'tnm' or 'mpamba'
+     *   mpamba  → 'mpamba' or 'tnm'
+     *   momo    → first available operator
+     */
+    private function resolveOperatorRefId(string $slug): ?string
+    {
+        $result = $this->getOperators();
+        if (!$result['success'] || empty($result['data'])) {
+            return null;
+        }
+
+        $operators = is_array($result['data']) ? $result['data'] : [];
+
+        $searchMap = [
+            self::OP_AIRTEL => ['airtel'],
+            self::OP_TNM    => ['tnm', 'mpamba'],
+            self::OP_MPAMBA => ['mpamba', 'tnm'],
+            self::OP_MOMO   => [],  // returns first available
+        ];
+
+        $terms = $searchMap[$slug] ?? [$slug];
+
+        foreach ($operators as $op) {
+            $name = strtolower($op['name'] ?? '');
+            if (empty($terms)) {
+                // momo: return first operator found
+                return $op['id'] ?? $op['ref_id'] ?? $op['uuid'] ?? null;
+            }
+            foreach ($terms as $term) {
+                if (strpos($name, $term) !== false) {
+                    return $op['id'] ?? $op['ref_id'] ?? $op['uuid'] ?? null;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Detect the MoMo operator slug from a Malawi phone number.
+     *
+     * Malawi MNO prefixes (local 10-digit format 0XXXXXXXXX):
+     *   Airtel Money : 099, 088, 077, 078
+     *   TNM Mpamba   : 084, 085, 086
+     */
+    private function detectOperatorFromPhone(string $phone): string
+    {
+        // Strip country code (+265 or 265) and normalise to local 0XXXXXXXXX
+        $clean = preg_replace('/^\+?265/', '', $phone);
+        if (strlen($clean) === 9) {
+            $clean = '0' . $clean;
+        }
+
+        $prefix = substr($clean, 0, 3);
+
+        if (in_array($prefix, ['099', '088', '077', '078'])) {
+            return self::OP_AIRTEL;
+        }
+        if (in_array($prefix, ['084', '085', '086'])) {
+            return self::OP_TNM;
+        }
+
+        // Default fallback
+        return self::OP_AIRTEL;
     }
 
     /** Extract a status string from a PayChangu response regardless of structure */

@@ -15,3 +15,12 @@
 [2026-04-07 07:47:51] [ERROR] DIRECT_CHARGE_BANK HTTP 400: {"create_permanent_account":["The selected create permanent account is invalid."]} {"charge_id":"CHG-20260407-0001"}
 [2026-04-07 07:48:13] [ERROR] DIRECT_CHARGE_BANK HTTP 400: {"create_permanent_account":["The selected create permanent account is invalid."]} {"charge_id":"CHG-20260407-0001"}
 [2026-04-07 09:43:01] [INFO] Admin login {"username":"admin","ip":"::1"}
+[2026-04-07 09:59:05] [ERROR] DIRECT_CHARGE_BANK HTTP 400: {"charge_id":["Charge ID has already been used."]} {"charge_id":"CHG-20260407-0001"}
+[2026-04-07 09:59:10] [ERROR] DIRECT_CHARGE_BANK HTTP 400: {"charge_id":["Charge ID has already been used."]} {"charge_id":"CHG-20260407-0001"}
+[2026-04-07 09:59:33] [ERROR] DIRECT_CHARGE_BANK HTTP 400: {"charge_id":["Charge ID has already been used."]} {"charge_id":"CHG-20260407-0001"}
+[2026-04-07 10:12:09] [ERROR] VERIFY_CHARGE_MOMO HTTP 404: Transaction record not found. {"charge_id":"%7B51665426915%7D"}
+[2026-04-07 10:12:31] [ERROR] VERIFY_CHARGE_BANK HTTP 404: Transaction record not found. {"charge_id":"%7B51665426915%7D"}
+[2026-04-07 10:12:43] [ERROR] VERIFY_CHARGE_BANK HTTP 404: Transaction record not found. {"charge_id":"51665426915"}
+[2026-04-07 10:18:21] [ERROR] VERIFY_CHARGE_MOMO HTTP 404: Transaction record not found. {"charge_id":"973df665-3514-4901-a47e-1c2f1f60e72c"}
+[2026-04-07 10:18:26] [ERROR] VERIFY_CHARGE_MOMO HTTP 404: Transaction record not found. {"charge_id":"973df665-3514-4901-a47e-1c2f1f60e72c"}
+[2026-04-07 13:36:31] [ERROR] VERIFY_CHARGE_MOMO HTTP 404: Transaction record not found. {"charge_id":"973df665-3514-4901-a47e-1c2f1f60e72c"}

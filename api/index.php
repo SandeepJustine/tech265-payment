@@ -730,30 +730,26 @@ function route_dcCharge($params, $keyMeta)
 
     // Validate common required fields
     ApiMiddleware::validate($body, [
-        'operator'  => 'required|in:momo,bank_transfer',
-        'charge_id' => 'required|max_len:100',
-        'amount'    => 'numeric|min:1',
-        'currency'  => 'in:MWK,USD',
+        'operator' => 'required|in:airtel,tnm,mpamba,bank_transfer',
+        'amount'   => 'required|numeric|min:1',
     ]);
 
     $operator = strtolower($body['operator']);
 
     // Validate operator-specific required fields
-    if ($operator === 'momo') {
+    if (in_array($operator, ['airtel', 'tnm', 'mpamba'])) {
         ApiMiddleware::validate($body, [
-            'mobile_money_operator_ref_id' => 'required',
-            'mobile'                       => 'required|max_len:20',
-            'amount'                       => 'required|numeric|min:1',
+            'phone'     => 'required|max_len:20',
+            'email'     => 'email',
+            'firstname' => 'max_len:100',
+            'lastname'  => 'max_len:100',
         ]);
     } elseif ($operator === 'bank_transfer') {
         ApiMiddleware::validate($body, [
-            'currency' => 'required|in:MWK',
+            'bank_name'      => 'required|max_len:200',
+            'account_number' => 'required|max_len:50',
+            'account_name'   => 'required|max_len:200',
         ]);
-        // Amount is optional for permanent accounts — only require if not permanent
-        $isPermanent = ($body['create_permanent_account'] ?? 'false') === 'true';
-        if (!$isPermanent) {
-            ApiMiddleware::validate($body, ['amount' => 'required|numeric|min:1']);
-        }
     }
 
     try {
@@ -761,7 +757,7 @@ function route_dcCharge($params, $keyMeta)
         $result = $dc->charge($body);
 
         if ($result['success']) {
-            $msg = $operator === 'momo'
+            $msg = in_array($operator, ['airtel', 'tnm', 'mpamba'])
                 ? 'Mobile money charge initiated. Customer will receive a payment prompt on their phone.'
                 : 'Bank transfer charge initialised. Share the generated account details with your customer.';
             ApiMiddleware::success($result['data'], $msg, 201);
@@ -845,43 +841,23 @@ function route_dcDetails($params, $keyMeta)
 }
 
 // ── POST /v1/payout ───────────────────────────────────────────
-// Unified payout endpoint — operator field routes to MoMo or Bank
+// Unified payout endpoint — amount + phone; operator auto-detected from phone prefix
 function route_payoutInit($params, $keyMeta)
 {
     $body = ApiMiddleware::body();
 
-    // Validate common required fields
+    // Only amount and phone are required
     ApiMiddleware::validate($body, [
-        'operator'  => 'required|in:momo,bank_transfer',
-        'charge_id' => 'required|max_len:100',
-        'amount'    => 'required|numeric|min:1',
+        'amount' => 'required|numeric|min:1',
+        'phone'  => 'required|max_len:20',
     ]);
-
-    $operator = strtolower($body['operator']);
-
-    // Validate operator-specific required fields
-    if ($operator === 'momo') {
-        ApiMiddleware::validate($body, [
-            'mobile_money_operator_ref_id' => 'required',
-            'mobile'                       => 'required|max_len:20',
-        ]);
-    } elseif ($operator === 'bank_transfer') {
-        ApiMiddleware::validate($body, [
-            'bank_uuid'           => 'required',
-            'bank_account_name'   => 'required|max_len:200',
-            'bank_account_number' => 'required|max_len:50',
-        ]);
-    }
 
     try {
         $dc     = new DirectCharge();
         $result = $dc->payout($body);
 
         if ($result['success']) {
-            $msg = $operator === 'momo'
-                ? 'Mobile money payout initiated. Funds will be sent to the recipient\'s mobile wallet.'
-                : 'Bank transfer payout initiated. Funds will be sent to the recipient\'s bank account.';
-            ApiMiddleware::success($result['data'], $msg, 201);
+            ApiMiddleware::success($result['data'], 'Payout initiated. Funds will be sent to the recipient\'s mobile wallet.', 201);
         } else {
             ApiMiddleware::error($result['message'] ?? 'Payout failed.', 400, [], 'PAYOUT_FAILED');
         }
