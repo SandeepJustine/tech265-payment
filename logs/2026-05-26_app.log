@@ -13,3 +13,6 @@
 [2026-05-26 07:56:44] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
 [2026-05-26 08:06:28] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-58CC3E29243B-1779782769"}
 [2026-05-26 08:06:50] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-58CC3E29243B-1779782769"}
+[2026-05-26 08:54:50] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
+[2026-05-26 08:55:55] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
+[2026-05-26 09:06:11] [INFO] Admin login {"username":"admin","ip":"::1"}
