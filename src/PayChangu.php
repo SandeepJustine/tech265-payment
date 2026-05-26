@@ -67,7 +67,7 @@ class PayChangu
         $result = $this->post('/payment', $payload, $txRef, 'INITIATE_PAYMENT');
 
         if ($result['success']) {
-            $checkoutUrl = $result['data']['data']['checkout_url'] ?? null;
+            $checkoutUrl = $result['data']['checkout_url'] ?? null;
             Database::update('transactions', ['checkout_url' => $checkoutUrl], ['tx_ref' => $txRef]);
         }
 

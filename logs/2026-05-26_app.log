@@ -1,0 +1,15 @@
+[2026-05-26 07:39:43] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
+[2026-05-26 07:40:27] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
+[2026-05-26 07:41:26] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
+[2026-05-26 07:41:42] [WARNING] Failed login attempt {"username":"cardsmw@admin","ip":"::1"}
+[2026-05-26 07:41:44] [WARNING] Failed login attempt {"username":"cardsmw@admin","ip":"::1"}
+[2026-05-26 07:41:50] [WARNING] Failed login attempt {"username":"admin@c001","ip":"::1"}
+[2026-05-26 07:42:46] [WARNING] Failed login attempt {"username":"cardsmw@admin","ip":"::1"}
+[2026-05-26 07:43:06] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
+[2026-05-26 07:48:45] [ERROR] DIRECT_CHARGE_MOMO HTTP 400: Mobile money operator not found. {"charge_id":"PC-T265-2F13ADB5-1779781724"}
+[2026-05-26 07:48:58] [ERROR] DIRECT_CHARGE_MOMO HTTP 400: Mobile money operator not found. {"charge_id":"PC-T265-6C7F41E8-1779781736"}
+[2026-05-26 07:51:29] [WARNING] VERIFY_CHARGE_MOMO non-success: Payment is currently pending. {"charge_id":"PC-T265-CFB64BB1-1779781824"}
+[2026-05-26 07:51:49] [WARNING] VERIFY_CHARGE_MOMO non-success: Payment is currently pending. {"charge_id":"PC-T265-CFB64BB1-1779781824"}
+[2026-05-26 07:56:44] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
+[2026-05-26 08:06:28] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-58CC3E29243B-1779782769"}
+[2026-05-26 08:06:50] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-58CC3E29243B-1779782769"}

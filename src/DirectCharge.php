@@ -449,11 +449,11 @@ class DirectCharge
             $name = strtolower($op['name'] ?? '');
             if (empty($terms)) {
                 // momo: return first operator found
-                return $op['id'] ?? $op['ref_id'] ?? $op['uuid'] ?? null;
+                return $op['ref_id'] ?? $op['uuid'] ?? $op['id'] ?? null;
             }
             foreach ($terms as $term) {
                 if (strpos($name, $term) !== false) {
-                    return $op['id'] ?? $op['ref_id'] ?? $op['uuid'] ?? null;
+                    return $op['ref_id'] ?? $op['uuid'] ?? $op['id'] ?? null;
                 }
             }
         }

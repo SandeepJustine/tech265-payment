@@ -333,8 +333,8 @@ function route_paymentsInitiate($params, $keyMeta)
 
         if ($result['success']) {
             $checkoutUrl = null;
-            if (isset($result['data']['data']['checkout_url'])) {
-                $checkoutUrl = $result['data']['data']['checkout_url'];
+            if (isset($result['data']['checkout_url'])) {
+                $checkoutUrl = $result['data']['checkout_url'];
             }
             ApiMiddleware::success([
                 'tx_ref'       => $result['tx_ref'],
