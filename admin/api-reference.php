@@ -70,7 +70,7 @@ include __DIR__ . '/layout/header.php';
   <div style="display:flex;gap:10px;align-items:center">
     <input type="text" id="globalApiKey" class="try-input" style="margin:0;max-width:400px"
            placeholder="Paste your X-API-Key here to test endpoints…"
-           value="tech265-dev-key-CHANGE-ME">
+           value="<?= defined('TECH265_API_KEY') ? htmlspecialchars(TECH265_API_KEY) : '' ?>">
     <span style="font-size:.8rem;color:#5b21b6">Used in all "Try It" requests below</span>
   </div>
 </div>
@@ -206,121 +206,93 @@ $groups = [
       'sample_response' => '{"status":"success","data":{"records":[{"tx_ref":"T265-...","event_type":"checkout.payment","processed":1,...}]}}',
     ],
   ],
-  'Direct Charge – Mobile Money' => [
+  'Direct Charge' => [
     [
-      'method'=>'GET', 'path'=>'/direct/momo/operators', 'auth'=>'key',
-      'desc' => 'List all supported mobile money operators (Airtel Money, TNM Mpamba etc.) available for direct charges.',
+      'method'=>'GET', 'path'=>'/direct/operators', 'auth'=>'key',
+      'desc' => 'List all supported mobile money operators (Airtel Money, TNM Mpamba, etc.) with their UUIDs. Use the returned values as the <code>operator</code> field name when charging.',
       'params' => [],
-      'sample_response' => '{"status":"success","data":[{"ref_id":"20be6c20-...","name":"Airtel Money","country":"Malawi"}]}',
+      'sample_response' => '{"status":"success","data":[{"ref_id":"27494cb5-ba9e-437f-a114-4e7a7686bcca","name":"TNM Mpamba","country":"Malawi"},{"ref_id":"20be6c20-adeb-4b5b-a7ba-0769820df4fb","name":"Airtel Money","country":"Malawi"}]}',
     ],
     [
-      'method'=>'POST', 'path'=>'/direct/momo/charge', 'auth'=>'full',
-      'desc' => 'Directly charge a customers mobile money wallet. The customer receives a payment prompt on their phone to approve.',
+      'method'=>'GET', 'path'=>'/direct/banks', 'auth'=>'key',
+      'desc' => 'List all banks supported for bank transfer charges.',
+      'params' => [],
+      'sample_response' => '{"status":"success","data":[{"name":"National Bank of Malawi","country":"Malawi"},{"name":"Standard Bank","country":"Malawi"}]}',
+    ],
+    [
+      'method'=>'POST', 'path'=>'/direct/charge', 'auth'=>'full',
+      'label'=>'POST /direct/charge  (Mobile Money)',
+      'desc' => 'Initiate a mobile money direct charge (Airtel / TNM / Mpamba). The customer receives a USSD payment prompt on their phone.',
       'params' => [
-        ['name'=>'mobile_money_operator_ref_id','type'=>'string','required'=>true, 'desc'=>'Operator UUID from GET /direct/momo/operators'],
-        ['name'=>'mobile',    'type'=>'string','required'=>true,  'desc'=>'Customer mobile number e.g. 0991234567'],
-        ['name'=>'amount',    'type'=>'number','required'=>true,  'desc'=>'Amount in MWK'],
-        ['name'=>'charge_id', 'type'=>'string','required'=>true,  'desc'=>'Your unique transaction reference e.g. PC-T265-XXXX'],
-        ['name'=>'first_name','type'=>'string','required'=>false, 'desc'=>'Customer first name'],
-        ['name'=>'last_name', 'type'=>'string','required'=>false, 'desc'=>'Customer last name'],
+        ['name'=>'operator',  'type'=>'string','required'=>true,  'desc'=>'airtel | tnm | mpamba'],
+        ['name'=>'phone',     'type'=>'string','required'=>true,  'desc'=>'Customer mobile number e.g. 0991234567'],
+        ['name'=>'amount',    'type'=>'number','required'=>true,  'desc'=>'Amount in MWK (must be > 0)'],
         ['name'=>'email',     'type'=>'string','required'=>false, 'desc'=>'Customer email'],
+        ['name'=>'firstname', 'type'=>'string','required'=>false, 'desc'=>'Customer first name'],
+        ['name'=>'lastname',  'type'=>'string','required'=>false, 'desc'=>'Customer last name'],
       ],
-      'body_example' => '{"mobile_money_operator_ref_id":"20be6c20-adeb-4b5b-a7ba-0769820df4fb","mobile":"0991234567","amount":1000,"charge_id":"PC-T265-A1B2C3D4"}',
-      'sample_response' => '{"status":"success","data":{"amount":1000,"charge_id":"PC-T265-A1B2C3D4","status":"pending","mobile":"+265991234567","mobile_money":{"name":"Airtel Money"}}}',
+      'body_example' => "{\n  \"operator\": \"tnm\",\n  \"phone\": \"0999123456\",\n  \"amount\": 500,\n  \"email\": \"customer@example.com\",\n  \"firstname\": \"John\",\n  \"lastname\": \"Doe\"\n}",
+      'sample_response' => '{"status":"success","message":"Mobile money charge initiated. Customer will receive a payment prompt on their phone.","data":{"charge_id":"PC-T265-XXXX","amount":500,"status":"pending","mobile":"+265999123456","mobile_money":{"name":"TNM Mpamba"}}}',
     ],
     [
-      'method'=>'GET', 'path'=>'/direct/momo/charge/{charge_id}/verify', 'auth'=>'key',
-      'desc' => 'Verify the status of a mobile money direct charge. Call this after receiving a webhook to confirm payment.',
-      'params' => [['name'=>'charge_id','type'=>'path','required'=>true,'desc'=>'Your charge_id reference']],
-      'sample_response' => '{"status":"success","data":{"status":"success","amount":1000,"charge_id":"PC-T265-A1B2C3D4","authorization":{"channel":"Mobile Money","provider":"Airtel Money"}}}',
+      'method'=>'POST', 'path'=>'/direct/charge', 'auth'=>'full',
+      'label'=>'POST /direct/charge  (Bank Transfer)',
+      'desc' => 'Initiate a bank transfer charge. A temporary virtual account is generated — share the details with the customer for them to pay via their bank.',
+      'params' => [
+        ['name'=>'operator',        'type'=>'string','required'=>true, 'desc'=>'Always bank_transfer'],
+        ['name'=>'amount',          'type'=>'number','required'=>true, 'desc'=>'Amount in MWK'],
+        ['name'=>'bank_name',       'type'=>'string','required'=>true, 'desc'=>'Bank name from GET /direct/banks'],
+        ['name'=>'account_number',  'type'=>'string','required'=>true, 'desc'=>"Customer's bank account number"],
+        ['name'=>'account_name',    'type'=>'string','required'=>true, 'desc'=>"Customer's account name"],
+      ],
+      'body_example' => "{\n  \"operator\": \"bank_transfer\",\n  \"amount\": 5000,\n  \"bank_name\": \"National Bank of Malawi\",\n  \"account_number\": \"1234567890\",\n  \"account_name\": \"John Doe\"\n}",
+      'sample_response' => '{"status":"success","message":"Bank transfer charge initialised.","data":{"charge_id":"PC-T265-XXXX","amount":5000,"status":"pending"}}',
     ],
     [
-      'method'=>'GET', 'path'=>'/direct/momo/charge/{charge_id}', 'auth'=>'key',
-      'desc' => 'Retrieve full details of a mobile money charge including transaction logs.',
-      'params' => [['name'=>'charge_id','type'=>'path','required'=>true,'desc'=>'Your charge_id reference']],
-      'sample_response' => '{"status":"success","data":{"amount":1000,"charge_id":"PC-T265-A1B2C3D4","status":"success"}}',
+      'method'=>'GET', 'path'=>'/direct/charge/{charge_id}/verify?operator=momo', 'auth'=>'key',
+      'desc' => 'Verify the status of a mobile money charge. Pass <code>operator=momo</code>. Call this after a webhook notification to confirm payment.',
+      'params' => [
+        ['name'=>'charge_id','type'=>'path', 'required'=>true, 'desc'=>'The charge_id returned when the charge was created'],
+        ['name'=>'operator', 'type'=>'query','required'=>true, 'desc'=>'momo | bank_transfer'],
+      ],
+      'sample_response' => '{"status":"success","data":{"status":"success","amount":500,"charge_id":"PC-T265-XXXX"}}',
+    ],
+    [
+      'method'=>'GET', 'path'=>'/direct/charge/{charge_id}?operator=momo', 'auth'=>'key',
+      'desc' => 'Get full details of a charge. The <code>operator</code> query param is optional — it is auto-detected from the database if omitted.',
+      'params' => [
+        ['name'=>'charge_id','type'=>'path', 'required'=>true,  'desc'=>'The charge_id reference'],
+        ['name'=>'operator', 'type'=>'query','required'=>false, 'desc'=>'momo | bank_transfer (auto-detected if omitted)'],
+      ],
+      'sample_response' => '{"status":"success","data":{"charge_id":"PC-T265-XXXX","amount":500,"status":"success"}}',
     ],
   ],
 
-  'Direct Charge – Bank Transfer' => [
+  'Payouts' => [
     [
-      'method'=>'POST', 'path'=>'/direct/bank/charge', 'auth'=>'full',
-      'desc' => 'Generate a temporary virtual bank account. Share the account details with your customer — they pay via instant bank transfer (Malawian banks USSD/app). Account expires in 1 hour. MWK only.',
+      'method'=>'POST', 'path'=>'/payout', 'auth'=>'full',
+      'desc' => 'Send funds from your PayChangu balance to a mobile wallet. The operator (Airtel / TNM) is auto-detected from the phone number prefix: <code>088x/089x</code> → Airtel, <code>099x</code> → TNM.',
       'params' => [
-        ['name'=>'charge_id',               'type'=>'string','required'=>true,  'desc'=>'Your unique charge reference'],
-        ['name'=>'amount',                   'type'=>'number','required'=>false, 'desc'=>'Amount in MWK (omit for permanent accounts)'],
-        ['name'=>'currency',                 'type'=>'string','required'=>true,  'desc'=>'Always MWK'],
-        ['name'=>'create_permanent_account', 'type'=>'string','required'=>false, 'desc'=>'"true" to create a static account number (can be reused), "false" for one-time (default)'],
+        ['name'=>'amount','type'=>'number','required'=>true, 'desc'=>'Amount to send in MWK'],
+        ['name'=>'phone', 'type'=>'string','required'=>true, 'desc'=>'Recipient mobile number e.g. 0999654321'],
       ],
-      'body_example' => '{"charge_id":"PC-T265-B5C6D7E8","amount":5000,"currency":"MWK","create_permanent_account":"false"}',
-      'sample_response' => '{"status":"success","data":{"payment_account_details":{"bank_name":"Centenary Bank","account_number":"2652455380","account_name":"PayChangu","account_expiration_timestamp":1736805724},"transaction":{"amount":5000,"status":"pending"}}}',
+      'body_example' => "{\n  \"amount\": 150,\n  \"phone\": \"0999654321\"\n}",
+      'sample_response' => '{"status":"success","message":"Payout initiated. Funds will be sent to the recipient\'s mobile wallet.","data":{"charge_id":"PC-T265-XXXX","amount":150,"status":"pending","mobile":"+265999654321"}}',
     ],
     [
-      'method'=>'GET', 'path'=>'/direct/bank/charge/{charge_id}', 'auth'=>'key',
-      'desc' => 'Retrieve details of a bank transfer charge and check if the customer has completed the payment.',
-      'params' => [['name'=>'charge_id','type'=>'path','required'=>true,'desc'=>'Your charge_id reference']],
-      'sample_response' => '{"status":"success","data":{"transaction":{"charge_id":"PC-T265-B5C6D7E8","status":"success","amount":5000}}}',
-    ],
-  ],
-  'Payout – Mobile Money' => [
-    [
-      'method'=>'GET', 'path'=>'/payout/momo/operators', 'auth'=>'key',
-      'desc' => 'List mobile money operators available for sending payouts.',
+      'method'=>'GET', 'path'=>'/payout/list', 'auth'=>'key',
+      'desc' => 'List all payouts on your PayChangu account.',
       'params' => [],
-      'sample_response' => '{"status":"success","data":[{"ref_id":"20be6c20-...","name":"Airtel Money","country":"Malawi"}]}',
+      'sample_response' => '{"status":"success","data":[{"charge_id":"PC-T265-XXXX","amount":150,"status":"success"}]}',
     ],
     [
-      'method'=>'POST', 'path'=>'/payout/momo', 'auth'=>'full',
-      'desc' => 'Send funds directly from your PayChangu balance to a mobile money number. Recipient gets funds instantly.',
+      'method'=>'GET', 'path'=>'/payout/{charge_id}?operator=momo', 'auth'=>'key',
+      'desc' => 'Get status and details of a specific payout. The <code>operator</code> param is auto-detected from the database if omitted.',
       'params' => [
-        ['name'=>'mobile_money_operator_ref_id','type'=>'string','required'=>true, 'desc'=>'Operator UUID from GET /payout/momo/operators'],
-        ['name'=>'mobile',    'type'=>'string','required'=>true, 'desc'=>'Recipient mobile number'],
-        ['name'=>'amount',    'type'=>'number','required'=>true, 'desc'=>'Amount to send in MWK'],
-        ['name'=>'charge_id', 'type'=>'string','required'=>true, 'desc'=>'Your unique payout reference'],
+        ['name'=>'charge_id','type'=>'path', 'required'=>true,  'desc'=>'The payout charge_id'],
+        ['name'=>'operator', 'type'=>'query','required'=>false, 'desc'=>'momo | bank_transfer (auto-detected if omitted)'],
       ],
-      'body_example' => '{"mobile_money_operator_ref_id":"20be6c20-adeb-4b5b-a7ba-0769820df4fb","mobile":"0990000000","amount":1000,"charge_id":"PC-T265-PAYOUT-001"}',
-      'sample_response' => '{"status":"success","data":{"amount":1000,"charge_id":"PC-T265-PAYOUT-001","status":"pending","mobile":"+265990000000","mobile_money":{"name":"Airtel Money"}}}',
-    ],
-    [
-      'method'=>'GET', 'path'=>'/payout/momo/{charge_id}', 'auth'=>'key',
-      'desc' => 'Get the current status and details of a mobile money payout.',
-      'params' => [['name'=>'charge_id','type'=>'path','required'=>true,'desc'=>'Your payout charge_id']],
-      'sample_response' => '{"status":"success","data":{"charge_id":"PC-T265-PAYOUT-001","status":"success","amount":1000}}',
-    ],
-  ],
-  'Payout – Bank Transfer' => [
-    [
-      'method'=>'GET', 'path'=>'/payout/bank/supported-banks', 'auth'=>'key',
-      'desc' => 'List all banks supported for bank payouts. Returns bank_uuid needed for the payout request.',
-      'params' => [
-        ['name'=>'currency','type'=>'query','required'=>false,'desc'=>'MWK (default) or USD'],
-      ],
-      'sample_response' => '{"status":"success","data":[{"uuid":"82310dd1-...","name":"National Bank of Malawi","country":"Malawi"}]}',
-    ],
-    [
-      'method'=>'POST', 'path'=>'/payout/bank', 'auth'=>'full',
-      'desc' => 'Send funds from your PayChangu balance directly to a bank account. Requires KYC approval and feature activation.',
-      'params' => [
-        ['name'=>'bank_uuid',           'type'=>'string','required'=>true, 'desc'=>'Bank UUID from GET /payout/bank/supported-banks'],
-        ['name'=>'amount',              'type'=>'number','required'=>true, 'desc'=>'Amount to send'],
-        ['name'=>'charge_id',           'type'=>'string','required'=>true, 'desc'=>'Your unique payout reference'],
-        ['name'=>'bank_account_name',   'type'=>'string','required'=>true, 'desc'=>"Recipient's full account name"],
-        ['name'=>'bank_account_number', 'type'=>'string','required'=>true, 'desc'=>"Recipient's account number"],
-      ],
-      'body_example' => '{"bank_uuid":"82310dd1-ec9b-4fe7-a32c-2f262ef08681","amount":10000,"charge_id":"PC-T265-BANK-001","bank_account_name":"Madalitso Kamwendo","bank_account_number":"1001000010"}',
-      'sample_response' => '{"status":"success","data":{"transaction":{"charge_id":"PC-T265-BANK-001","status":"pending","amount":10000,"recipient_account_details":{"bank_name":"National Bank of Malawi"}}}}',
-    ],
-    [
-      'method'=>'GET', 'path'=>'/payout/bank/payouts', 'auth'=>'key',
-      'desc' => 'List all bank payouts for your PayChangu account.',
-      'params' => [],
-      'sample_response' => '{"status":"success","data":[{"charge_id":"PC-T265-BANK-001","status":"success","amount":10000}]}',
-    ],
-    [
-      'method'=>'GET', 'path'=>'/payout/bank/{charge_id}', 'auth'=>'key',
-      'desc' => 'Get the status and full details of a specific bank payout.',
-      'params' => [['name'=>'charge_id','type'=>'path','required'=>true,'desc'=>'Your payout charge_id']],
-      'sample_response' => '{"status":"success","data":{"transaction":{"charge_id":"PC-T265-BANK-001","status":"success","amount":10000}}}',
+      'sample_response' => '{"status":"success","data":{"charge_id":"PC-T265-XXXX","amount":150,"status":"success"}}',
     ],
   ],
   'Statistics' => [
@@ -338,7 +310,7 @@ foreach ($groups as $groupName => $endpoints):
 <div class="endpoint-group">
   <div class="group-title"><?= $groupName ?></div>
   <?php foreach ($endpoints as $idx => $ep):
-    $eid = strtolower(preg_replace('/[^a-z0-9]/i','-',$ep['method'].$ep['path']));
+    $eid = strtolower(preg_replace('/[^a-z0-9]/i','-',$ep['method'].$ep['path'])) . '-' . $idx;
     $authClass = match($ep['auth']) {
       'none'    => 'auth-none',
       'webhook' => 'auth-webhook',
@@ -355,7 +327,7 @@ foreach ($groups as $groupName => $endpoints):
   <div class="endpoint" id="ep-<?= $eid ?>">
     <div class="endpoint-header" onclick="toggleEndpoint('<?= $eid ?>')">
       <span class="method-badge method-<?= $ep['method'] ?>"><?= $ep['method'] ?></span>
-      <span class="endpoint-path"><?= htmlspecialchars($ep['path']) ?></span>
+      <span class="endpoint-path"><?= htmlspecialchars(isset($ep['label']) ? $ep['label'] : $ep['path']) ?></span>
       <span class="auth-badge <?= $authClass ?>"><?= $authLabel ?></span>
       <span class="chevron" id="chev-<?= $eid ?>">›</span>
     </div>

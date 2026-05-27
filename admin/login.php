@@ -1,7 +1,10 @@
 <?php
 require_once __DIR__ . '/../src/AdminAuth.php';
+require_once __DIR__ . '/../src/Security.php';
 
 AdminAuth::startSession();
+Security::sendSecurityHeaders();
+
 if (AdminAuth::isLoggedIn()) {
     header('Location: ' . APP_URL . '/admin/');
     exit;
@@ -9,6 +12,7 @@ if (AdminAuth::isLoggedIn()) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    Security::validateCsrf();
     $user = $_POST['username'] ?? '';
     $pass = $_POST['password'] ?? '';
     if (AdminAuth::login($user, $pass)) {
@@ -17,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $error = 'Invalid username or password.';
 }
+$csrfToken = Security::csrfToken();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -49,13 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="error">⚠️ <?= htmlspecialchars($error) ?></div>
   <?php endif; ?>
   <form method="POST">
+    <input type="hidden" name="csrf_token" value="<?= Security::h($csrfToken) ?>">
     <label>Username</label>
     <input type="text" name="username" required autocomplete="username" placeholder="admin">
     <label>Password</label>
     <input type="password" name="password" required autocomplete="current-password" placeholder="••••••••">
     <button class="btn" type="submit">Sign In</button>
   </form>
-  <p class="hint">Default: admin / Tech265@Admin</p>
 </div>
 </body>
 </html>

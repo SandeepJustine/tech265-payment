@@ -7,6 +7,7 @@
 
 require_once __DIR__ . '/../src/PayChangu.php';
 require_once __DIR__ . '/../config/constants.php';
+require_once __DIR__ . '/../src/Security.php';
 
 // ── Capture incoming data ──────────────────────────────────────
 $txRef  = $_GET['tx_ref']  ?? $_POST['tx_ref']  ?? null;
@@ -21,6 +22,12 @@ if ($webhook && isset($webhook['tx_ref'])) {
     $txRef  = $txRef  ?: $webhook['tx_ref'];
     $trxRef = $trxRef ?: ($webhook['trx_ref'] ?? null);
     $status = $status ?: ($webhook['status'] ?? null);
+}
+
+// Validate transaction reference format before any further processing
+if ($txRef !== null && !Security::isValidRef($txRef)) {
+    http_response_code(400);
+    die('Invalid transaction reference format.');
 }
 
 // Log the webhook payload

@@ -146,10 +146,8 @@ class DirectCharge
             ];
         }
 
-        // Persist record with resolved type
-        if ($result['success']) {
-            $this->saveCharge($chargeId, $internalOperator, $params, $result);
-        }
+        // Always persist record — even failures — so admin panel shows full charge history
+        $this->saveCharge($chargeId, $internalOperator, $params, $result);
 
         $result['operator']  = $operator;
         $result['charge_id'] = $chargeId;
@@ -308,9 +306,8 @@ class DirectCharge
             ];
         }
 
-        if ($result['success']) {
-            $this->savePayout($chargeId, $internalOperator, $params, $result);
-        }
+        // Always record the attempt — even failures — so the admin panel captures all payout history
+        $this->savePayout($chargeId, $internalOperator, $params, $result);
 
         $result['operator']  = $operator;
         $result['charge_id'] = $chargeId;
@@ -530,7 +527,7 @@ class DirectCharge
             Database::insert('direct_charges', [
                 'charge_id'            => $chargeId,
                 'charge_type'          => $type,
-                'status'               => $txn['status']   ?? 'pending',
+                'status'               => $txn['status'] ?? ($result['success'] ? 'pending' : 'failed'),
                 'amount'               => $txn['amount']   ?? ($params['amount'] ?? null),
                 'currency'             => $txn['currency'] ?? ($params['currency'] ?? 'MWK'),
                 'mobile'               => $params['mobile'] ?? null,
@@ -567,10 +564,13 @@ class DirectCharge
 
             $completedAt = $this->extractCompletedAt($data);
 
+            // Determine status: use API status if available, else 'failed' for errors
+            $status = $txn['status'] ?? ($result['success'] ? 'pending' : 'failed');
+
             Database::insert('payouts', [
                 'charge_id'           => $chargeId,
                 'payout_type'         => $type,
-                'status'              => $txn['status']   ?? 'pending',
+                'status'              => $status,
                 'amount'              => $txn['amount']   ?? ($params['amount'] ?? 0),
                 'currency'            => $txn['currency'] ?? 'MWK',
                 'mobile'              => $params['mobile'] ?? null,

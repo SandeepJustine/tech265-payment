@@ -10,6 +10,6 @@ define('UPLOAD_PATH', 'assets/uploads/');
 define('LOGO_MAX_SIZE', 2 * 1024 * 1024); // 2MB
 // CA bundle for cURL SSL validation (download cacert.pem and place alongside this file)
 define('CURL_CA_BUNDLE_PATH', __DIR__ . '/cacert.pem');
-// If CA bundle is missing, allow insecure SSL as a temporary fallback
-define('ALLOW_INSECURE_SSL_FALLBACK', true);
+// Insecure SSL fallback MUST remain false in production to prevent MITM attacks.
+define('ALLOW_INSECURE_SSL_FALLBACK', false);
 ?>

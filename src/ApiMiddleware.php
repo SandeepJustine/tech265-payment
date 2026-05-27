@@ -14,11 +14,24 @@ class ApiMiddleware
 
     public static function cors()
     {
-        $origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
-        header('Access-Control-Allow-Origin: ' . $origin);
+        // Build an explicit origin whitelist; never reflect an arbitrary HTTP_ORIGIN.
+        $allowed = defined('CORS_ALLOWED_ORIGINS') ? (array) CORS_ALLOWED_ORIGINS : [];
+        if (defined('APP_URL') && APP_URL) {
+            $appOrigin = preg_replace('#(https?://[^/]+).*#', '$1', APP_URL);
+            if ($appOrigin && !in_array($appOrigin, $allowed, true)) {
+                $allowed[] = $appOrigin;
+            }
+        }
+
+        $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        if ($requestOrigin && in_array($requestOrigin, $allowed, true)) {
+            header('Access-Control-Allow-Origin: ' . $requestOrigin);
+            header('Access-Control-Allow-Credentials: true');
+            header('Vary: Origin');
+        }
+
         header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
         header('Access-Control-Allow-Headers: Content-Type, Authorization, X-API-Key, X-Requested-With');
-        header('Access-Control-Allow-Credentials: true');
         header('Access-Control-Max-Age: 86400');
 
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -71,7 +84,9 @@ class ApiMiddleware
 
     public static function authenticate($requiredRole = 'any')
     {
-        // Accept key from header, Authorization: Bearer, or query param (header preferred)
+        // Accept key only via X-API-Key header or Authorization: Bearer header.
+        // Query-parameter transport is intentionally unsupported to prevent key
+        // leakage through server logs, browser history, and Referer headers.
         $key = '';
         if (!empty($_SERVER['HTTP_X_API_KEY'])) {
             $key = $_SERVER['HTTP_X_API_KEY'];
@@ -82,28 +97,18 @@ class ApiMiddleware
             } else {
                 $key = $authHeader;
             }
-        } elseif (!empty($_GET['api_key'])) {
-            $key = $_GET['api_key'];
         }
 
         $key = trim($key);
 
-        // Allow default dev key in development
-        if (!$key && (defined('APP_ENV') && APP_ENV === 'development')) {
-            $key = 'tech265-dev-key-CHANGE-ME';
-        }
-
         if (!$key) {
-            self::error('API key is required. Pass it via X-API-Key header, Authorization: Bearer, or ?api_key= query.', 401, [], 'MISSING_API_KEY');
+            self::error('API key is required. Pass it via X-API-Key header or Authorization: Bearer.', 401, [], 'MISSING_API_KEY');
         }
 
         $keys = API_KEYS;
         if (!array_key_exists($key, $keys)) {
             Logger::warning('Invalid API key attempt', ['ip' => Logger::getIp(), 'key_prefix' => substr($key, 0, 8) . '...']);
-            $msg = (defined('APP_ENV') && APP_ENV === 'development')
-                ? 'Invalid API key. (Tip: update your .env TECH265_API_KEY or use the dev key for local testing)'
-                : 'Invalid API key.';
-            self::error($msg, 401, [], 'INVALID_API_KEY');
+            self::error('Invalid API key.', 401, [], 'INVALID_API_KEY');
         }
 
         $meta = $keys[$key];

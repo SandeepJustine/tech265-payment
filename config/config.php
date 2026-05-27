@@ -40,6 +40,10 @@ define('APP_VERSION', EnvLoader::get('APP_VERSION', '1.0.0'));
 define('APP_URL',     rtrim(EnvLoader::get('APP_URL', 'http://localhost/tech265-payment'), '/'));
 define('APP_DEBUG',   EnvLoader::bool('APP_DEBUG',  APP_ENV !== 'production'));
 
+// Additional origins allowed for CORS (comma-separated in .env, e.g. https://app.example.com).
+// The APP_URL origin is always allowed automatically.
+define('CORS_ALLOWED_ORIGINS', EnvLoader::arr('CORS_ALLOWED_ORIGINS', []));
+
 
 // ════════════════════════════════════════════════════════════
 // PAYCHANGU API
@@ -111,7 +115,10 @@ if ($_k1) $_apiKeys[$_k1] = ['name' => 'Default App Key', 'role' => 'full'];
 if ($_k2) $_apiKeys[$_k2] = ['name' => 'Read-Only Key',   'role' => 'readonly'];
 if ($_k3) $_apiKeys[$_k3] = ['name' => 'Webhook Key',     'role' => 'webhook'];
 
-define('API_KEYS', $_apiKeys);
+define('API_KEYS',        $_apiKeys);
+define('TECH265_API_KEY', $_k1 ?: '');
+define('TECH265_RO_KEY',  $_k2 ?: '');
+define('TECH265_WH_KEY',  $_k3 ?: '');
 unset($_apiKeys, $_k1, $_k2, $_k3);
 
 

@@ -6,14 +6,17 @@
 
 require_once __DIR__ . '/../src/PayChangu.php';
 require_once __DIR__ . '/../config/constants.php';
+require_once __DIR__ . '/../src/Security.php';
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
 
 $txRef = $_GET['tx_ref'] ?? null;
 
-if (!$txRef) {
+if (!$txRef || !Security::isValidRef($txRef)) {
     http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'tx_ref is required.']);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid or missing tx_ref.']);
     exit;
 }
 

@@ -3,6 +3,8 @@
 if (!defined('APP_URL')) {
     require_once __DIR__ . '/../../config/config.php';
 }
+require_once __DIR__ . '/../../src/Security.php';
+Security::sendSecurityHeaders();
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -5,10 +5,18 @@
 require_once __DIR__ . '/../src/Database.php';
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/constants.php';
+require_once __DIR__ . '/../src/Security.php';
+
+Security::sendSecurityHeaders();
 
 $txRef    = $_GET['tx_ref']    ?? null;
 $verified = ($_GET['verified'] ?? '0') === '1';
 $txData   = null;
+
+// Validate tx_ref format before querying
+if ($txRef !== null && !Security::isValidRef($txRef)) {
+    $txRef = null;
+}
 
 if ($txRef) {
     try {
@@ -76,7 +84,7 @@ if ($txRef) {
       <p style="color:#64748b;margin-bottom:16px">
         <?= $verified ? 'Your payment has been verified and recorded.' : 'The payment could not be completed. Please try again.' ?>
       </p>
-      <span class="badge <?= $txData['status'] ?>"><?= strtoupper($txData['status']) ?></span>
+      <span class="badge <?= htmlspecialchars($txData['status']) ?>"><?= htmlspecialchars(strtoupper($txData['status'])) ?></span>
     </div>
     <div style="margin-top:24px">
       <?php $rows = [

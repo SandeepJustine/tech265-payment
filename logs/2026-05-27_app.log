@@ -1,0 +1,4 @@
+[2026-05-27 08:32:48] [INFO] Admin login {"username":"admin","ip":"::1"}
+[2026-05-27 08:33:05] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-0E4A701CC356-1779798244"}
+[2026-05-27 12:18:47] [INFO] Admin login {"username":"admin","ip":"::1"}
+[2026-05-27 12:19:11] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-0E4A701CC356-1779798244"}

@@ -20,3 +20,44 @@
 [2026-05-26 09:46:58] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
 [2026-05-26 09:47:35] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
 [2026-05-26 09:48:22] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 11:58:46] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 11:59:11] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 11:59:14] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 12:00:11] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 12:05:16] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"TECH265_..."}
+[2026-05-26 12:05:30] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 12:05:40] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 12:05:43] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 12:05:44] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 12:05:45] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 12:06:03] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 12:18:40] [ERROR] VERIFY_CHARGE_MOMO HTTP 404: Transaction record not found. {"charge_id":"973df665-3514-4901-a47e-1c2f1f60e72c"}
+[2026-05-26 12:21:10] [WARNING] Failed login attempt {"username":"admin","ip":"::1"}
+[2026-05-26 12:21:23] [INFO] Admin login {"username":"admin","ip":"::1"}
+[2026-05-26 12:22:09] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 12:39:18] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 12:40:08] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"Su6x4gJ0..."}
+[2026-05-26 12:40:09] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"Su6x4gJ0..."}
+[2026-05-26 12:40:09] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"Su6x4gJ0..."}
+[2026-05-26 12:40:10] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"Su6x4gJ0..."}
+[2026-05-26 12:40:20] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"Su6x4gJ0..."}
+[2026-05-26 12:40:45] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"Su6x4gJ0..."}
+[2026-05-26 12:40:48] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"Su6x4gJ0..."}
+[2026-05-26 12:41:44] [INFO] Admin login {"username":"admin","ip":"::1"}
+[2026-05-26 12:43:41] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 12:46:33] [ERROR] VERIFY_CHARGE_MOMO HTTP 404: Transaction record not found. {"charge_id":"a414cdc5-968b-40ed-bcc6-6fac3a85183d"}
+[2026-05-26 13:09:53] [WARNING] PAYOUT_MOMO non-success: An error ocurred during payment. Kindly ensure that you are entering the correct Airtel money account number. {"charge_id":"PC-T265-491757F3-1779800975"}
+[2026-05-26 13:10:28] [WARNING] PAYOUT_MOMO non-success: An error ocurred during payment. Kindly ensure that you are entering the correct Airtel money account number. {"charge_id":"PC-T265-C63F7FDA-1779801009"}
+[2026-05-26 13:11:19] [ERROR] PAYOUT_MOMO HTTP 400: {"mobile":["Enter a valid mobile number of nine (9) digits."]} {"charge_id":"PC-T265-19758257-1779801078"}
+[2026-05-26 13:11:58] [WARNING] PAYOUT_MOMO non-success: An error ocurred during payment. Kindly ensure that you are entering the correct Airtel money account number. {"charge_id":"PC-T265-53C4872D-1779801097"}
+[2026-05-26 13:15:13] [ERROR] PAYOUT_MOMO HTTP 400: Oops! Payout could not be initiated due to insufficient funds. {"charge_id":"PC-T265-2AA6AF7C-1779801294"}
+[2026-05-26 13:46:39] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-0E4A701CC356-1779798244"}
+[2026-05-26 14:00:48] [ERROR] PAYOUT_MOMO HTTP 400: You cannot withdraw less than MWK50.00. {"charge_id":"PC-T265-459825EC-1779804046"}
+[2026-05-26 14:02:29] [WARNING] PAYOUT_MOMO non-success: An error ocurred during payment. Kindly ensure that you are entering the correct Airtel money account number. {"charge_id":"PC-T265-5A177370-1779804128"}
+[2026-05-26 14:08:20] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-0E4A701CC356-1779798244"}
+[2026-05-26 14:11:46] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-0E4A701CC356-1779798244"}
+[2026-05-26 14:13:07] [WARNING] Invalid API key attempt {"ip":"::1","key_prefix":"tech265-..."}
+[2026-05-26 14:16:38] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-0E4A701CC356-1779798244"}
+[2026-05-26 14:17:21] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-0E4A701CC356-1779798244"}
+[2026-05-26 14:18:34] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-0E4A701CC356-1779798244"}
+[2026-05-26 14:18:42] [ERROR] VERIFY_PAYMENT HTTP 400: Payment transaction not created. {"tx_ref":"T265-490FA4AC67FF-1779798157"}

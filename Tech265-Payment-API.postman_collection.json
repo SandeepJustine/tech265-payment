@@ -1,43 +1,9 @@
 {
   "info": {
-    "name": "Tech265 Payment API",
     "_postman_id": "tech265-payment-api-v1",
-    "description": "Full collection for the Tech265 PayChangu Integration API.\n\n**Base URL:** `http://localhost/tech265-payment/api/v1`\n\n**Auth:** Add `Authorization: Bearer {{api_key}}` or `X-API-Key: {{api_key}}` to every request. The collection-level auth handles this automatically.\n\n**Variable `api_key`:** Set to your full key from `.env` → `TECH265_API_KEY`.\n\n**Variable `tx_ref`:** Set after a successful `/payments/initiate` response.\n\n**Variable `charge_id`:** Set after a successful `/direct/charge` or `/payout` response.",
+    "name": "Tech265 Payment API",
+    "description": "Full collection for the Tech265 PayChangu Integration API.\n\n**Base URL:** `http://localhost/tech265-payment/api/v1`\n\n**Auth:** Add `Authorization: Bearer {{api_key}}` or `X-API-Key: {{api_key}}` to every request. The collection-level auth handles this automatically.\n\n**Variable** **`api_key`****:** Set to your full key from `.env` → `TECH265_API_KEY`.\n\n**Variable** **`tx_ref`****:** Set after a successful `/payments/initiate` response.\n\n**Variable** **`charge_id`****:** Set after a successful `/direct/charge` or `/payout` response.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost/tech265-payment/api/v1",
-      "type": "string"
-    },
-    {
-      "key": "api_key",
-      "value": "SEC-Su6x4gJ01Scjblzx7LzzPi0LcDhZq4SN",
-      "type": "string"
-    },
-    {
-      "key": "tx_ref",
-      "value": "",
-      "type": "string",
-      "description": "Populated automatically by the 'Initiate Payment' test script"
-    },
-    {
-      "key": "charge_id",
-      "value": "",
-      "type": "string",
-      "description": "Populated automatically by the 'Direct Charge' and 'Payout' test scripts"
-    }
-  ],
-  "auth": {
-    "type": "bearer",
-    "bearer": [
-      {
-        "key": "token",
-        "value": "{{api_key}}",
-        "type": "string"
-      }
-    ]
   },
   "item": [
     {
@@ -45,14 +11,21 @@
       "item": [
         {
           "name": "Health Check",
+          "id": "a2f6c9dc-7163-4541-bcf9-f40c172f6a5b",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/health",
-              "host": ["{{base_url}}"],
-              "path": ["health"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
             },
             "description": "Full health check — database connectivity, PHP extensions, PayChangu reachability. No API key required."
           },
@@ -60,14 +33,21 @@
         },
         {
           "name": "Status Ping",
+          "id": "c294e709-0dfd-45fd-8b2d-7d1460f5a1de",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/status",
-              "host": ["{{base_url}}"],
-              "path": ["status"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "status"
+              ]
             },
             "description": "Lightweight ping — just returns 200 OK with uptime. No API key required."
           },
@@ -75,20 +55,28 @@
         },
         {
           "name": "API Info",
+          "id": "d74a0b11-52a9-455b-9cbf-b630451b2fb5",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/info",
-              "host": ["{{base_url}}"],
-              "path": ["info"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "info"
+              ]
             },
             "description": "Returns API metadata, version, and the full route listing. No API key required."
           },
           "response": []
         }
-      ]
+      ],
+      "id": "8a28f625-8e1f-4d1a-98cf-82e34471173d"
     },
     {
       "name": "2. Hosted Checkout (Payments)",
@@ -112,10 +100,14 @@
               }
             }
           ],
+          "id": "2e4662a9-d667-46cc-9a7d-7f6bd5e9ea86",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -123,8 +115,13 @@
             },
             "url": {
               "raw": "{{base_url}}/payments/initiate",
-              "host": ["{{base_url}}"],
-              "path": ["payments", "initiate"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments",
+                "initiate"
+              ]
             },
             "description": "Creates a hosted checkout session. Returns `tx_ref` and `checkout_url`. The test script automatically saves `tx_ref` to the collection variable.\n\n**Required:** `first_name`, `last_name`, `email`, `amount`, `currency`\n\n**Optional:** `title`, `description`, `meta`\n\n**Currencies:** MWK, USD, ZAR, GBP, EUR"
           },
@@ -132,13 +129,20 @@
         },
         {
           "name": "Verify Payment",
+          "id": "62e34471-b7d9-4377-b6ff-34c341903844",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/payments/verify/{{tx_ref}}",
-              "host": ["{{base_url}}"],
-              "path": ["payments", "verify", "{{tx_ref}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments",
+                "verify",
+                "{{tx_ref}}"
+              ]
             },
             "description": "Verify transaction status by `tx_ref`. Uses the `tx_ref` variable set by 'Initiate Payment'. You can also replace `{{tx_ref}}` manually."
           },
@@ -146,22 +150,65 @@
         },
         {
           "name": "List Transactions",
+          "id": "93fd4871-d095-49ef-b412-b1e6e351fa10",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/payments?limit=20&page=1",
-              "host": ["{{base_url}}"],
-              "path": ["payments"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments"
+              ],
               "query": [
-                { "key": "limit",     "value": "20",     "description": "Records per page (max 100)" },
-                { "key": "page",      "value": "1",      "description": "Page number" },
-                { "key": "status",    "value": "",       "description": "Filter: pending | successful | failed | cancelled", "disabled": true },
-                { "key": "email",     "value": "",       "description": "Filter by email (partial match)", "disabled": true },
-                { "key": "currency",  "value": "",       "description": "Filter: MWK, USD, etc.", "disabled": true },
-                { "key": "date_from", "value": "",       "description": "YYYY-MM-DD", "disabled": true },
-                { "key": "date_to",   "value": "",       "description": "YYYY-MM-DD", "disabled": true },
-                { "key": "search",    "value": "",       "description": "Search tx_ref, email, name", "disabled": true }
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Records per page (max 100)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter: pending | successful | failed | cancelled",
+                  "disabled": true
+                },
+                {
+                  "key": "email",
+                  "value": "",
+                  "description": "Filter by email (partial match)",
+                  "disabled": true
+                },
+                {
+                  "key": "currency",
+                  "value": "",
+                  "description": "Filter: MWK, USD, etc.",
+                  "disabled": true
+                },
+                {
+                  "key": "date_from",
+                  "value": "",
+                  "description": "YYYY-MM-DD",
+                  "disabled": true
+                },
+                {
+                  "key": "date_to",
+                  "value": "",
+                  "description": "YYYY-MM-DD",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search tx_ref, email, name",
+                  "disabled": true
+                }
               ]
             },
             "description": "List all transactions with optional filters and pagination."
@@ -170,32 +217,45 @@
         },
         {
           "name": "Get Single Transaction",
+          "id": "438b8bf7-1a8a-4d94-88db-0fe4b36c983d",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/payments/{{tx_ref}}",
-              "host": ["{{base_url}}"],
-              "path": ["payments", "{{tx_ref}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments",
+                "{{tx_ref}}"
+              ]
             },
             "description": "Get a single transaction by `tx_ref`."
           },
           "response": []
         }
-      ]
+      ],
+      "id": "aa645134-b751-4989-880f-c25d3d377c39"
     },
     {
       "name": "3. Direct Charge (MoMo & Bank)",
       "item": [
         {
           "name": "List MoMo Operators",
+          "id": "08ae197e-1fe1-4cc5-a28e-f53310e13e69",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/direct/operators",
-              "host": ["{{base_url}}"],
-              "path": ["direct", "operators"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "direct",
+                "operators"
+              ]
             },
             "description": "Returns all supported mobile money operators from PayChangu (Airtel, TNM/Mpamba, etc.) with their `ref_id` UUIDs."
           },
@@ -203,13 +263,19 @@
         },
         {
           "name": "List Banks",
+          "id": "eb061878-d763-4da8-94b2-eae6508c21ce",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/direct/banks",
-              "host": ["{{base_url}}"],
-              "path": ["direct", "banks"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "direct",
+                "banks"
+              ]
             },
             "description": "Returns all supported banks for bank transfer charges."
           },
@@ -234,10 +300,14 @@
               }
             }
           ],
+          "id": "41bbd9c5-9142-4975-ad36-386fb1c41ccd",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -245,8 +315,13 @@
             },
             "url": {
               "raw": "{{base_url}}/direct/charge",
-              "host": ["{{base_url}}"],
-              "path": ["direct", "charge"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "direct",
+                "charge"
+              ]
             },
             "description": "Initiate a TNM MoMo direct charge. The customer receives a USSD prompt on their phone.\n\n**operator values:** `airtel` | `tnm` | `mpamba`\n\n**Required:** `operator`, `amount`, `phone`\n\n**Optional:** `email`, `firstname`, `lastname`"
           },
@@ -271,10 +346,14 @@
               }
             }
           ],
+          "id": "35b32c25-8c54-4581-bd55-c11614ed290e",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -282,8 +361,13 @@
             },
             "url": {
               "raw": "{{base_url}}/direct/charge",
-              "host": ["{{base_url}}"],
-              "path": ["direct", "charge"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "direct",
+                "charge"
+              ]
             },
             "description": "Initiate an Airtel Money direct charge."
           },
@@ -308,10 +392,14 @@
               }
             }
           ],
+          "id": "0656bb4e-374d-4603-b42c-abaed05e18a2",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -319,8 +407,13 @@
             },
             "url": {
               "raw": "{{base_url}}/direct/charge",
-              "host": ["{{base_url}}"],
-              "path": ["direct", "charge"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "direct",
+                "charge"
+              ]
             },
             "description": "Initiate a bank transfer charge.\n\n**Required:** `operator` (bank_transfer), `amount`, `bank_name`, `account_number`, `account_name`"
           },
@@ -328,15 +421,27 @@
         },
         {
           "name": "Verify Charge (MoMo)",
+          "id": "a77b72d7-96bd-41fe-bafd-4ba9b1ca7ca1",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/direct/charge/{{charge_id}}/verify?operator=momo",
-              "host": ["{{base_url}}"],
-              "path": ["direct", "charge", "{{charge_id}}", "verify"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "direct",
+                "charge",
+                "{{charge_id}}",
+                "verify"
+              ],
               "query": [
-                { "key": "operator", "value": "momo", "description": "momo | bank_transfer" }
+                {
+                  "key": "operator",
+                  "value": "momo",
+                  "description": "momo | bank_transfer"
+                }
               ]
             },
             "description": "Verify a MoMo direct charge status. Uses the `charge_id` variable set by the charge requests."
@@ -345,15 +450,26 @@
         },
         {
           "name": "Verify Charge (Bank Transfer)",
+          "id": "2329cd93-5e47-48eb-9429-91664bb20a13",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/direct/charge/{{charge_id}}/verify?operator=bank_transfer",
-              "host": ["{{base_url}}"],
-              "path": ["direct", "charge", "{{charge_id}}", "verify"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "direct",
+                "charge",
+                "{{charge_id}}",
+                "verify"
+              ],
               "query": [
-                { "key": "operator", "value": "bank_transfer" }
+                {
+                  "key": "operator",
+                  "value": "bank_transfer"
+                }
               ]
             },
             "description": "Verify a bank transfer charge status."
@@ -362,22 +478,34 @@
         },
         {
           "name": "Get Charge Details",
+          "id": "83d5e3a0-5609-4602-b9d0-2d6e60f75ed8",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/direct/charge/{{charge_id}}?operator=momo",
-              "host": ["{{base_url}}"],
-              "path": ["direct", "charge", "{{charge_id}}"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "direct",
+                "charge",
+                "{{charge_id}}"
+              ],
               "query": [
-                { "key": "operator", "value": "momo", "description": "momo | bank_transfer (auto-detected from DB if omitted)" }
+                {
+                  "key": "operator",
+                  "value": "momo",
+                  "description": "momo | bank_transfer (auto-detected from DB if omitted)"
+                }
               ]
             },
             "description": "Get full charge details. The `operator` param is optional — the API will auto-detect from the database if the charge_id is known."
           },
           "response": []
         }
-      ]
+      ],
+      "id": "d671bdc3-6ad2-4a34-9b9f-a0caf9eb0128"
     },
     {
       "name": "4. Payouts",
@@ -401,10 +529,14 @@
               }
             }
           ],
+          "id": "78da0771-c397-4681-bdbe-53541c2d0a6c",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -412,8 +544,12 @@
             },
             "url": {
               "raw": "{{base_url}}/payout",
-              "host": ["{{base_url}}"],
-              "path": ["payout"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payout"
+              ]
             },
             "description": "Send money to a mobile wallet. The operator (Airtel / TNM) is auto-detected from the phone number prefix.\n\n**088x / 089x** → Airtel Money\n\n**099x** → TNM Mpamba\n\n**Required:** `amount`, `phone`"
           },
@@ -421,13 +557,19 @@
         },
         {
           "name": "List Payouts",
+          "id": "224ca566-3117-4fb3-bd08-6a8402f2baaf",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/payout/list",
-              "host": ["{{base_url}}"],
-              "path": ["payout", "list"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payout",
+                "list"
+              ]
             },
             "description": "List all payouts from the PayChangu account."
           },
@@ -435,38 +577,61 @@
         },
         {
           "name": "Get Payout Details",
+          "id": "44d071c8-5c7e-496f-a637-4c6edbd9a1cb",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/payout/{{charge_id}}?operator=momo",
-              "host": ["{{base_url}}"],
-              "path": ["payout", "{{charge_id}}"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payout",
+                "{{charge_id}}"
+              ],
               "query": [
-                { "key": "operator", "value": "momo", "description": "momo | bank_transfer (auto-detected if omitted)" }
+                {
+                  "key": "operator",
+                  "value": "momo",
+                  "description": "momo | bank_transfer (auto-detected if omitted)"
+                }
               ]
             },
             "description": "Get details of a specific payout by charge_id."
           },
           "response": []
         }
-      ]
+      ],
+      "id": "e7ef65ab-42ef-48ff-94ca-41af92191deb"
     },
     {
       "name": "5. Logs & Stats",
       "item": [
         {
           "name": "API Activity Logs",
+          "id": "603f6751-e85b-434f-b2ce-adb0514aaec2",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/logs/api?limit=20&page=1",
-              "host": ["{{base_url}}"],
-              "path": ["logs", "api"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logs",
+                "api"
+              ],
               "query": [
-                { "key": "limit", "value": "20" },
-                { "key": "page",  "value": "1" }
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
               ]
             },
             "description": "Returns paginated API activity log entries."
@@ -475,16 +640,28 @@
         },
         {
           "name": "Error Logs",
+          "id": "8f3a42fd-fcf0-4988-9a0e-88c6161b6292",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/logs/errors?limit=20&page=1",
-              "host": ["{{base_url}}"],
-              "path": ["logs", "errors"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logs",
+                "errors"
+              ],
               "query": [
-                { "key": "limit", "value": "20" },
-                { "key": "page",  "value": "1" }
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
               ]
             },
             "description": "Returns paginated application error log entries."
@@ -493,16 +670,28 @@
         },
         {
           "name": "Webhook Logs",
+          "id": "352a8432-a3d9-4be0-bd78-acb2f17476aa",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/logs/webhooks?limit=20&page=1",
-              "host": ["{{base_url}}"],
-              "path": ["logs", "webhooks"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logs",
+                "webhooks"
+              ],
               "query": [
-                { "key": "limit", "value": "20" },
-                { "key": "page",  "value": "1" }
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
               ]
             },
             "description": "Returns paginated webhook delivery log entries."
@@ -511,19 +700,63 @@
         },
         {
           "name": "Statistics",
+          "id": "7e608b7f-b331-4eef-abfd-c2b109d4083e",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/stats",
-              "host": ["{{base_url}}"],
-              "path": ["stats"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stats"
+              ]
             },
             "description": "Returns aggregate statistics — transaction counts, totals by status, revenue by currency, recent activity."
           },
           "response": []
         }
-      ]
+      ],
+      "id": "8bc15a23-275a-432a-885e-194db1a4a9c8"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{api_key}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "id": "7d2e2fab-4613-491a-a376-b800f70fd694",
+      "key": "base_url",
+      "value": "http://localhost/tech265-payment/api/v1",
+      "type": "string"
+    },
+    {
+      "id": "c411116b-9267-49aa-b373-c07096344d65",
+      "key": "api_key",
+      "value": "SEC-Su6x4gJ01Scjblzx7LzzPi0LcDhZq4SN",
+      "type": "string"
+    },
+    {
+      "id": "a6e3e16f-ceb6-4e1e-b149-40aeb4eb7b54",
+      "key": "tx_ref",
+      "value": "",
+      "type": "string",
+      "description": "Populated automatically by the 'Initiate Payment' test script"
+    },
+    {
+      "id": "fa95af86-66cb-4b09-810f-50bf44022660",
+      "key": "charge_id",
+      "value": "",
+      "type": "string",
+      "description": "Populated automatically by the 'Direct Charge' and 'Payout' test scripts"
     }
   ]
 }

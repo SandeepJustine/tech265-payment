@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../src/AdminAuth.php';
+require_once __DIR__ . '/../src/Security.php';
 AdminAuth::requireLogin();
 $user = AdminAuth::currentUser();
 
@@ -10,11 +11,13 @@ $offset = ($page - 1) * $limit;
 
 // Handle resolve action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['resolve_id'])) {
+    Security::validateCsrf();
     Database::update('error_logs', ['resolved' => 1], ['id' => (int)$_POST['resolve_id']]);
     header('Location: ' . APP_URL . '/admin/errors.php');
     exit;
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['resolve_all'])) {
+    Security::validateCsrf();
     $db->exec("UPDATE error_logs SET resolved = 1 WHERE resolved = 0");
     header('Location: ' . APP_URL . '/admin/errors.php');
     exit;
@@ -57,6 +60,7 @@ include __DIR__ . '/layout/header.php';
 <div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
   <span style="color:#991b1b;font-weight:600">⚠️ <?= number_format($unresolvedCount) ?> unresolved error(s) require attention.</span>
   <form method="POST" style="display:inline">
+    <input type="hidden" name="csrf_token" value="<?= Security::h(Security::csrfToken()) ?>">
     <button name="resolve_all" value="1" class="btn" style="background:#dc2626;padding:7px 16px;font-size:.82rem" onclick="return confirm('Mark all errors as resolved?')">✔ Resolve All</button>
   </form>
 </div>
@@ -69,7 +73,7 @@ include __DIR__ . '/layout/header.php';
     <select name="error_type">
       <option value="">All Error Types</option>
       <?php foreach ($errTypes as $et): ?>
-      <option value="<?= $et ?>" <?= $errType===$et?'selected':'' ?>><?= $et ?></option>
+      <option value="<?= htmlspecialchars($et) ?>" <?= $errType===$et?'selected':'' ?>><?= htmlspecialchars($et) ?></option>
       <?php endforeach; ?>
     </select>
     <select name="resolved">
@@ -101,7 +105,7 @@ include __DIR__ . '/layout/header.php';
         <td style="font-size:.82rem;max-width:260px"><?= htmlspecialchars(mb_strimwidth($err['message'], 0, 90, '…')) ?></td>
         <td><code style="font-size:.72rem"><?= htmlspecialchars($err['tx_ref'] ?? '—') ?></code></td>
         <td style="font-size:.75rem;color:#64748b">
-          <?= $err['file'] ? basename($err['file']) . ':' . $err['line_number'] : '—' ?>
+          <?= $err['file'] ? htmlspecialchars(basename($err['file'])) . ':' . (int)$err['line_number'] : '—' ?>
         </td>
         <td><span class="badge <?= $err['resolved'] ? 'success' : 'failed' ?>"><?= $err['resolved'] ? 'RESOLVED' : 'OPEN' ?></span></td>
         <td style="font-size:.75rem;color:#64748b"><?= $err['created_at'] ?></td>
@@ -110,7 +114,8 @@ include __DIR__ . '/layout/header.php';
                   style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:.8rem;font-weight:600">Detail</button>
           <?php if (!$err['resolved']): ?>
           <form method="POST" style="display:inline">
-            <input type="hidden" name="resolve_id" value="<?= $err['id'] ?>">
+            <input type="hidden" name="csrf_token" value="<?= Security::h(Security::csrfToken()) ?>">
+            <input type="hidden" name="resolve_id" value="<?= (int)$err['id'] ?>">
             <button type="submit" style="background:none;border:none;color:#16a34a;cursor:pointer;font-size:.8rem;font-weight:600">✔ Resolve</button>
           </form>
           <?php endif; ?>
@@ -144,6 +149,12 @@ include __DIR__ . '/layout/header.php';
 </div>
 
 <script>
+// HTML-escape helper to prevent stored-XSS when injecting DB values into innerHTML
+function escHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 function showDetail(err) {
   const fields = {
     'Error Type': err.error_type, 'Error Code': err.error_code||'—',
@@ -153,13 +164,13 @@ function showDetail(err) {
   };
   let html = '<table style="width:100%;font-size:.85rem;border-collapse:collapse">';
   for (const [k,v] of Object.entries(fields))
-    html += `<tr><td style="padding:7px 10px;color:#64748b;font-weight:600;white-space:nowrap;border-bottom:1px solid #f1f5f9">${k}</td><td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${v}</td></tr>`;
+    html += `<tr><td style="padding:7px 10px;color:#64748b;font-weight:600;white-space:nowrap;border-bottom:1px solid #f1f5f9">${escHtml(k)}</td><td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${escHtml(v)}</td></tr>`;
   html += '</table>';
-  html += `<div style="margin-top:14px"><strong style="font-size:.82rem">Message:</strong><div style="background:#fef2f2;color:#991b1b;padding:12px;border-radius:8px;margin-top:6px;font-size:.85rem">${err.message}</div></div>`;
+  html += `<div style="margin-top:14px"><strong style="font-size:.82rem">Message:</strong><div style="background:#fef2f2;color:#991b1b;padding:12px;border-radius:8px;margin-top:6px;font-size:.85rem">${escHtml(err.message)}</div></div>`;
   if (err.stack_trace)
-    html += `<div style="margin-top:14px"><strong style="font-size:.82rem">Stack Trace:</strong><pre style="background:#1e293b;color:#fca5a5;padding:12px;border-radius:8px;font-size:.72rem;margin-top:6px;overflow:auto;max-height:220px">${err.stack_trace}</pre></div>`;
+    html += `<div style="margin-top:14px"><strong style="font-size:.82rem">Stack Trace:</strong><pre style="background:#1e293b;color:#fca5a5;padding:12px;border-radius:8px;font-size:.72rem;margin-top:6px;overflow:auto;max-height:220px">${escHtml(err.stack_trace)}</pre></div>`;
   if (err.context) {
-    try { html += `<div style="margin-top:14px"><strong style="font-size:.82rem">Context:</strong><pre style="background:#1e293b;color:#7dd3fc;padding:12px;border-radius:8px;font-size:.76rem;margin-top:6px;overflow:auto;max-height:160px">${JSON.stringify(JSON.parse(err.context),null,2)}</pre></div>`; } catch(e) {}
+    try { html += `<div style="margin-top:14px"><strong style="font-size:.82rem">Context:</strong><pre style="background:#1e293b;color:#7dd3fc;padding:12px;border-radius:8px;font-size:.76rem;margin-top:6px;overflow:auto;max-height:160px">${escHtml(JSON.stringify(JSON.parse(err.context),null,2))}</pre></div>`; } catch(e) {}
   }
   document.getElementById('modal-body').innerHTML = html;
   document.getElementById('modal').style.display = 'flex';
